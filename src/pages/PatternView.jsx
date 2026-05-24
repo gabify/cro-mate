@@ -51,7 +51,7 @@ const PatternView = () => {
             </div>
 
             <div className="flex justify-center mt-5">
-                <button className="bg-pink-300 px-5 py-2 rounded-2xl text-xl font-bold text-white">Start Now!</button>
+                <Link to="/tracking-system" state={{patternId: pattern.id}} className="bg-pink-300 px-5 py-2 rounded-2xl text-xl font-bold text-white">Start Now!</Link>
             </div>
         </section>
     )
