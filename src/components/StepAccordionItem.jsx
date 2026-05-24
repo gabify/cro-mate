@@ -6,7 +6,7 @@ const StepAccordionItem = ({step}) =>{
     const [isOpen, setIsOpen] = useState(false);
     
     return(
-        <section className="w-full mb-1 shadow-md rounded-2xl">
+        <section className="w-full mb-3 shadow-md rounded-2xl">
             <header 
                 className={`
                         flex items-center justify-between mb-2 p-2 rounded-t-2xl transition-colors duration-500 ease-in-out 
