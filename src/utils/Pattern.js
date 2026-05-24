@@ -12,10 +12,10 @@ export class Pattern {
 }
 
 export class PatternStep {
-    constructor(rowNumber, instruction){
+    constructor(id, rowNumber, instruction, repeatCount){
+        this.id = id,
         this.rowNumber = rowNumber;
         this.instruction = instruction;
+        this.repeatCount = repeatCount;
     }
-
-    id = crypto.randomUUID();
 }

@@ -1,8 +1,7 @@
-const CategoryPill = ({ category, handleClick }) => {
+const CategoryPill = ({ children }) => {
     return(
         <section className="flex justify-center gap-1 rounded-full bg-pink-100 px-4 py-1 text-sm font-medium text-pink-700">
-            <span>{category}</span>
-            <button className="text-pink-700" onClick={() => handleClick(category)}>&times;</button>
+           {children}
         </section>
     )
 }

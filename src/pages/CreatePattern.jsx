@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { usePatternContext } from "../hooks/usePatternContext";
-import { Pattern } from "../utils/Pattern";
-import Header from "./Header";
-import CategoryPill from "./CategoryPill";
-import MaterialPill from "./MaterialPill";
+import { Pattern, PatternStep } from "../utils/Pattern";
+import { Link, useNavigate } from "react-router-dom";
+import Header from "../components/Header";
+import CategoryPill from "../components/CategoryPill";
+import MaterialPill from "../components/MaterialPill";
 import toast from "react-hot-toast";
+import StepAccordionForm from "../components/StepAccordionForm";
 
-const AddPatternDialog = ({isOpen, dialogRef, onClose}) => {
 
+const CreatePattern = () => {
     const {dispatch} = usePatternContext();
     const [patternName, setPatternName] = useState("");
     const [category, setCategory] = useState([]);
@@ -19,13 +21,71 @@ const AddPatternDialog = ({isOpen, dialogRef, onClose}) => {
     const [categoryInput, setCategoryInput] = useState("");
     const [materialInput, setMaterialInput] = useState("");
 
+    const navigate = useNavigate();
+
+    //Setting diffculty
     const handleRadioChange = (e) => {
         setDifficulty(e.target.value)
     }
 
+    //handling category
     const handleRemoveCategory = (cat) => setCategory(category.filter(c => c !== cat));
-
+    //handling material
     const handleRemoveMaterial = (mat) => setMaterials(materials.filter(m => m !== mat));
+
+    //handling steps
+    //Add New Step
+    const addPatternStep = () =>{
+        const id = crypto.randomUUID();
+        const newStep = new PatternStep(id, steps.length + 1, "", 1);
+
+        setSteps([...steps, newStep]);
+    }
+
+    //Delete Steps
+    const deletePatternStep = (id) =>{
+        const filteredSteps = steps
+        .filter((s) => s.id !== id)
+        .map((step, index) => ({
+            ...step,
+            rowNumber: index + 1,
+        }))
+
+        setSteps(filteredSteps)
+    }
+
+    //UpdateInstruction
+    const updateStepInstruction = (id, value) => {
+        const updatedSteps = steps.map((step) =>{
+            if(step.id === id){
+                return new PatternStep(step.id, step.rowNumber, value, step.repeatCount)
+            }
+
+            return step;
+        })
+
+        setSteps(updatedSteps);
+    }
+
+    //UpdateRepeatCount
+    const updateRepeatCount = (id, value) =>{
+        const updatedSteps = steps.map((step) =>{
+            if(step.id === id){
+                return new PatternStep(
+                    step.id, 
+                    step.rowNumber, 
+                    step.instruction, 
+                    parseInt(value) < 1 ? 1 : parseInt(value
+                        
+                    )
+                )
+            }
+
+            return step
+        })
+
+        setSteps(updatedSteps);
+    }
 
 
     const handleSubmit = () => {
@@ -39,8 +99,6 @@ const AddPatternDialog = ({isOpen, dialogRef, onClose}) => {
                 notes
             );
 
-            console.log(newPattern)
-
             dispatch({type: "ADD_PATTERN", payload: newPattern});
             toast.success(`${patternName} added!`);
             setPatternName("");
@@ -49,26 +107,16 @@ const AddPatternDialog = ({isOpen, dialogRef, onClose}) => {
             setMaterials([]);
             setSteps([]);
             setNotes("");
-            onClose();
+            navigate('/')
+            
         }else{
             toast.error("An error occured while adding the pattern. Please try again.");
         }
     }
     
     
-    
     return (
-        <dialog className={
-            `rounded-lg m-4 px-4 py-5 w-full relative transition-all duration-150 ease-out transform
-            ${isOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"}
-            `} 
-            ref={dialogRef}
-        >
-
-            <button className="absolute top-2 right-2 text-lg text-red-500 hover:text-gray-700" onClick={onClose}>
-                &times;
-            </button>
-            
+        <section className="m-4 px-4 py-5">
             <Header 
                 title="Create New Pattern" 
                 subtitle="Fill out the details below to add a new pattern to your repository." 
@@ -134,7 +182,7 @@ const AddPatternDialog = ({isOpen, dialogRef, onClose}) => {
                     }
                     
                 }}>
-                <input
+                    <input
                         type="text"
                         className="w-full col-span-4 rounded-lg border-2 border-gray-300 px-3 py-2"
                         value={categoryInput}
@@ -145,7 +193,10 @@ const AddPatternDialog = ({isOpen, dialogRef, onClose}) => {
 
                 <div className="mt-2 flex gap-1.5 flex-wrap">
                     {category.map((cat, index) => (
-                        <CategoryPill key={index} category={cat} handleClick={handleRemoveCategory} />
+                        <CategoryPill key={index}>
+                            <span>{cat}</span>
+                            <button className="text-pink-700" onClick={() => handleRemoveCategory(cat)}>&times;</button>
+                        </CategoryPill>
                     ))}
                 </div>
             </div>
@@ -171,18 +222,40 @@ const AddPatternDialog = ({isOpen, dialogRef, onClose}) => {
 
                 <div className="mt-2 flex gap-1.5 flex-wrap">
                     {materials.map((mat, index) => (
-                        <MaterialPill key={index} material={mat} handleClick={handleRemoveMaterial} />
+                        <MaterialPill key={index}>
+                            <span className="truncate">{mat}</span>
+                            <button className="text-pink-700" onClick={() => handleRemoveMaterial(mat)}>&times;</button>
+                        </MaterialPill>
                     ))}
                 </div>
+            </div>
+
+            <div className="flex flex-col gap-2 border-t border-gray-500 pt-5">
+                <label className="text-sm">Describe the steps to craft this pattern.</label>
+                {steps.map((step) =>(
+                    <StepAccordionForm 
+                        key={step.id} 
+                        step={step} deleteStep={deletePatternStep}
+                        updateInstruction={updateStepInstruction}
+                        updateRepeatCount={updateRepeatCount}
+                    />
+                ))}
+
+                <button 
+                    onClick={addPatternStep}
+                    className="rounded-lg bg-pink-500 text-white px-3 py-2 text-sm"
+                >
+                    Add Row
+                </button>
             </div>
             
             <div className="flex gap-2 mt-5">
                 <button onClick={handleSubmit} className="rounded-lg bg-pink-500 text-white px-3 py-2">Create</button>
-                <button className="rounded-lg bg-pink-400 text-white px-3 py-2" onClick={onClose}>Back</button>
+                <Link className="rounded-lg bg-pink-400 text-white px-3 py-2" to="/">Back</Link>
             </div>
 
-        </dialog>
+        </section>
     )
 }
 
-export default AddPatternDialog;
+export default CreatePattern;
