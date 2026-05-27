@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { usePatternContext } from "../hooks/usePatternContext";
 import ArrowLeft from "../icons/ArrowLeft";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const TrackingSystem = () => {
     const data = useLocation();
@@ -10,11 +10,15 @@ const TrackingSystem = () => {
     const pattern = patterns.find((p) => p.id === data.state.patternId)
     const steps = pattern.steps
 
-    const [trackingSession, setTrackingSession] = useState({
+    const [trackingSession, setTrackingSession] = useState(data.state.savedSession ? data.state.savedSession : {
         patternId: pattern.id,
         currentRow: 1,
         updateAt: Date.now()
     })
+
+    useEffect(() =>{
+        localStorage.setItem("tracking-session", JSON.stringify(trackingSession));
+    }, [trackingSession])
     
     return(
         <main>

@@ -1,11 +1,36 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import PatternListItem from "../components/PatternListItem";
 import { usePatternContext } from "../hooks/usePatternContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import TrackingSystem from "./TrackingSystem";
+import PopUpDialog from "../components/PopUpDialog";
 
 
 const Home = () => {
     const {patterns} = usePatternContext(); 
+    const dialogRef = useRef(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const navigate = useNavigate();
+
+    const closeDialog = () => {
+        dialogRef.current.close();
+        setIsDialogOpen(false);
+        localStorage.removeItem("tracking-session");
+    }
+
+    const handleApproved = () =>{
+        dialogRef.current.close();
+        setIsDialogOpen(false);
+        const savedSession = JSON.parse(localStorage.getItem("tracking-session"));
+        navigate("/tracking-system", {state: {patternId: savedSession.patternId, savedSession: savedSession}});
+    }
+
+    useEffect(() =>{
+        if(localStorage.getItem("tracking-session") && !isDialogOpen){
+            setIsDialogOpen(true);
+            dialogRef.current.showModal();
+        }
+    }, [])
     
     return(
         <section>
@@ -26,6 +51,15 @@ const Home = () => {
                     ))}
                 </ul>
             </div>
+
+            <PopUpDialog 
+                title="Continue Session"
+                message="Do you want to continue from where you left off?"
+                dialogRef={dialogRef}
+                isOpen={isDialogOpen}
+                onClose={closeDialog}
+                onApproved={handleApproved}
+            />
         </section>
     )
 }
