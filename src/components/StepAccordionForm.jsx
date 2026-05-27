@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ChevronDown from "../icons/ChevronDown";
-import ChevronRight from "../icons/chevronRight";
+import ChevronRight from "../icons/ChevronRight";
 import TrashSolid from "../icons/TrashSolid";
 
 const StepAccordionForm = ({step, deleteStep, updateInstruction, updateRepeatCount}) => {
