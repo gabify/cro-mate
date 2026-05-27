@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ChevronDown from "../icons/ChevronDown";
-import ChevronRight from "../icons/chevronRight";
+import ChevronRight from "../icons/ChevronRight";
 
 const StepAccordionItem = ({step}) =>{
     const [isOpen, setIsOpen] = useState(false);
